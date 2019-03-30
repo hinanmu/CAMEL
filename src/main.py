@@ -8,8 +8,16 @@ from utils.data import Data
 from sklearn.metrics.pairwise import rbf_kernel
 from sklearn.model_selection import KFold, train_test_split
 
-#ADMM algriothm for label correlation
 def ADMM(y_not_j, y_j, rho=0):
+    """
+    ADMM algriothm for label correlation
+    :param y_not_j: numpy, dim {n_instances, n_labels - 1}
+        train label data which not contain j col
+    :param y_j: numpy, dim {n_instances, 1}
+        train label data which only contain j col
+    :param rho: ADMM augmented lagrangian parameter(not mentioned in the paper)
+    :return: numpy, dim {n_labels - 1, 1}
+    """
     #w, _ = np.linalg.eig(y_not_j.T.dot(y_not_j))
     #rho = 1 / (np.amax(np.absolute(w)))
     rho = 1
@@ -33,6 +41,19 @@ def ADMM(y_not_j, y_j, rho=0):
     return S_j
 
 def CAMEL(S, x, y, alpha, lam2):
+    """
+    get caml parameter
+    :param S: numpy, dim {n_labels, n_labels}
+        label correlation matrix
+    :param x: numpy, dim {n_instances, n_features}
+    :param y: numpy, dim {n_instances, n_labels}
+    :param alpha: number
+        alpha is the tradeoff parameter that controls the collaboration degree
+    :param lam2: number
+        λ1 and λ2 are the tradeoff parameters determining the relative importance of the above three terms
+        λ1 is given in the paper, equal to 1
+    :return:
+    """
     num_instances = x.shape[0]
     num_labels = y.shape[1]
 
