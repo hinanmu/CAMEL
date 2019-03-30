@@ -1,14 +1,16 @@
 #@Time      :2019/3/29 10:44
 #@Author    :zhounan
 # @FileName: main.py
+#import numpy as np
 import numpy as np
+import time
 from utils.data import Data
 from sklearn.metrics.pairwise import rbf_kernel
 from sklearn.model_selection import KFold, train_test_split
 
 #ADMM algriothm for label correlation
 def ADMM(y_not_j, y_j, rho=0):
-    w, _ = np.linalg.eig(y_not_j.T.dot(y_not_j))
+    #w, _ = np.linalg.eig(y_not_j.T.dot(y_not_j))
     #rho = 1 / (np.amax(np.absolute(w)))
     rho = 1
     #rho = 0.05
@@ -94,7 +96,7 @@ if __name__ == '__main__':
     for rho in rho_list:
         for alpha in alpha_list:
             for lam2 in lam2_list:
-                print('CAME rho:{}, alpha:{}, lam2:{}'.format(rho, alpha, lam2))
+                print('time{}, CAME rho:{}, alpha:{}, lam2:{}'.format(time.strftime('%H:%M:%S', time.localtime(time.time())), rho, alpha, lam2))
 
                 fold = 0
                 for train_idx, test_idx in kf.split(x):
@@ -124,9 +126,10 @@ if __name__ == '__main__':
                     val_loss = loss(val_predict, y_val)
                     test_loss = loss(test_predict, y_test)
 
-                    print('Kflod {}, train loss:{}, val loss:{}, test loss:{}'.format(fold, train_loss, val_loss, test_loss))
-
+                    print('time{}, Kflod {}, train loss:{}, val loss:{}, test loss:{}'.format(time.strftime('%H:%M:%S', time.localtime(time.time())), fold, train_loss, val_loss, test_loss))
                     fold += 1
+
+                print()
 
 
 
