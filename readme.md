@@ -7,14 +7,16 @@
 
 # Parameter
 - lamda for get label correlation matrix : $\frac { 1 } { 100 } \left\| \mathbf { Y } _ { j } ^ { \top } \mathbf { Y } _ { - j } \right\| _ { \infty }$
-- alpha: [0, 0.1 0.2...1]
+- alpha: [0, 0.1, 0.2,...,1]
 - lamda1: 1
 - lamda2: [0.001, 0.002, 0.01, 0.02, 0.1, 0.2, 1]
-- rho(ADMM the augmented Lagrangian parameter): not Mention in the paper
+- rho(ADMM the augmented lagrangian parameter): not mention in the paper
+- 5 fold cross validation
 
 # Requrements
 - scikit-learn 0.19.1
 - numpy 1.16.2
+- cupy-cuda100 5.3.0
 
 # Usage
 - prepare data
