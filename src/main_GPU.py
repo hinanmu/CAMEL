@@ -5,6 +5,7 @@
 import numpy as np
 import cupy as cp
 import time
+from utils.util import path_exists
 from utils.data import Data
 from sklearn.metrics.pairwise import rbf_kernel
 from sklearn.model_selection import KFold, train_test_split
@@ -106,8 +107,10 @@ def loss(predcit, y):
     return loss
 
 if __name__ == '__main__':
-    data = Data('yeast', label_type=0)
+    dataset = 'yeast'
+    data = Data(dataset, label_type=0)
     x, y = data.load_data()
+    train_log_path = '../train_log/' + dataset + '/'
 
     num_labels = y.shape[1]
     S = cp.zeros((num_labels, num_labels))
@@ -118,13 +121,20 @@ if __name__ == '__main__':
     rho_list = [1]
     alpha_list = cp.arange(0, 1, 0.1)
     lam2_list = cp.array([0.001, 0.002, 0.01, 0.02, 0.1, 0.2, 1])
+    step = 0
+    best_val_loss = 1e6
 
     for rho in rho_list:
         for alpha in alpha_list:
             for lam2 in lam2_list:
-                print('time{}, CAME rho:{}, alpha:{}, lam2:{}'.format(time.strftime('%H:%M:%S', time.localtime(time.time())), rho, alpha, lam2))
+                output = 'step:{}, time:{}, CAME rho:{}, alpha:{}, lam2:{}'.format(step, time.strftime('%H:%M:%S', time.localtime(time.time())), rho, alpha, lam2)
+                output_ = output
+                print(output)
 
                 fold = 0
+                train_loss_list = []
+                val_loss_list = []
+                test_loss_list = []
                 for train_idx, test_idx in kf.split(x):
                     x_trainval = x[train_idx]
                     y_trainval = y[train_idx]
@@ -152,12 +162,32 @@ if __name__ == '__main__':
                     val_loss = loss(val_predict, y_val)
                     test_loss = loss(test_predict, y_test)
 
-                    print('time:{}, Kflod {}, train loss:{}, val loss:{}, test loss:{}'.format(time.strftime('%H:%M:%S', time.localtime(time.time())), fold, train_loss, val_loss, test_loss))
+                    train_loss_list.append(train_loss)
+                    val_loss_list.append(val_loss)
+                    test_loss_list.append(test_loss)
+
+                    output = 'time:{}, Kflod {}, train loss:{}, val loss:{}, test loss:{}'.format(time.strftime('%H:%M:%S', time.localtime(time.time())), fold, train_loss, val_loss, test_loss)
+                    output_ = output_ + '\n'+ output
+                    print(output)
                     fold += 1
 
+                mean_train_loss, mean_val_loss, mean_test_loss = cp.mean(train_loss_list), cp.mean(train_loss_list), cp.mean(train_loss_list)
+                output = 'mean train loss:{}, val loss:{}, test loss:{}'.format(mean_train_loss, mean_val_loss, mean_test_loss)
+                output_ = output_ + '\n' + output
+                print(output)
+
+                if mean_val_loss < best_val_loss:
+                    best_val_loss = mean_val_loss
+                    output = 'current best para, rho:{}, alpha:{}, lam2:{}'.format(rho, alpha, lam2)
+                    output_ = output_ + '\n' + output
+                    print(output)
+
+                step += 1
+                output_ = output_ + '\n'
                 print()
 
-
-
-
+                log_name = time.strftime('%Y-%m-%d%H:%M:%S', time.localtime(time.time())) + '.log'
+                path_exists(train_log_path+log_name)
+                with open(train_log_path+log_name, 'a+') as f:
+                    f.write(output_)
 
